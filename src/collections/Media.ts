@@ -1,5 +1,5 @@
 import type { CollectionConfig } from 'payload'
-import {hasRole} from "@/utils/role-checker";
+import { hasRole } from '@/utils/roleChecker'
 
 export const Media: CollectionConfig = {
   slug: 'media',

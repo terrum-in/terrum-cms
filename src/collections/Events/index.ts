@@ -1,5 +1,5 @@
 import { CollectionConfig, FieldHook } from 'payload'
-import { hasRole } from '@/utils/role-checker'
+import { hasRole } from '@/utils/roleChecker'
 import { v4 as uuidv4 } from 'uuid'
 
 const generateUUID: FieldHook = ({ value }) => {

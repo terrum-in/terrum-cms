@@ -9,13 +9,16 @@ import { s3Storage } from '@payloadcms/storage-s3'
 
 import { Users } from '@/collections/Users'
 import { Media } from '@/collections/Media'
-import Brand from '@/collections/Brand'
-import Event from '@/collections/Event'
-import ShoppingCategory from '@/collections/ShoppingCategory'
+import Brand from '@/collections/Brands'
+import Event from '@/collections/Events'
+import ShoppingCategory from '@/collections/ShoppingCategories'
 import { formBuilderPlugin } from '@payloadcms/plugin-form-builder'
 import { importExportPlugin } from '@payloadcms/plugin-import-export'
 import { resendAdapter } from '@payloadcms/email-resend'
-import { hasRole } from '@/utils/role-checker'
+import { hasRole } from '@/utils/roleChecker'
+import RecyclingItems from '@/collections/RecyclingItems'
+import SustainabilityStandards from '@/collections/SustainabilityStandards'
+import Countries from './collections/Countries'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -28,7 +31,16 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
   },
-  collections: [Users, Media, Brand, Event, ShoppingCategory],
+  collections: [
+    Users,
+    Media,
+    Brand,
+    Event,
+    ShoppingCategory,
+    RecyclingItems,
+    SustainabilityStandards,
+    Countries,
+  ],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {

@@ -1,6 +1,6 @@
-import { CollectionConfig } from "payload";
-import { hasRole } from "@/utils/role-checker";
-import { citiesAndStates } from "@/utils/cities-and-states";
+import { CollectionConfig } from 'payload'
+import { hasRole } from '@/utils/roleChecker'
+import { citiesAndStates } from '@/utils/cities-and-states'
 
 const Brand: CollectionConfig = {
   slug: 'brands',
@@ -30,7 +30,9 @@ const Brand: CollectionConfig = {
     },
     {
       name: 'country',
-      type: 'text',
+      type: 'relationship',
+      relationTo: 'countries',
+      hasMany: false,
       required: true,
     },
     {
@@ -83,6 +85,13 @@ const Brand: CollectionConfig = {
     {
       name: 'products and services offered',
       type: 'textarea',
+      required: false,
+    },
+    {
+      name: 'sustainability standards',
+      type: 'relationship',
+      relationTo: 'sustainability-standards',
+      hasMany: true,
       required: false,
     },
     {
@@ -171,4 +180,4 @@ const Brand: CollectionConfig = {
   },
 }
 
-export default Brand;
+export default Brand

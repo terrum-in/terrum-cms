@@ -72,6 +72,9 @@ export interface Config {
     brands: Brand;
     events: Event;
     'shopping-categories': ShoppingCategory;
+    'recycling-items': RecyclingItem;
+    'sustainability-standards': SustainabilityStandard;
+    countries: Country;
     forms: Form;
     'form-submissions': FormSubmission;
     exports: Export;
@@ -87,6 +90,9 @@ export interface Config {
     brands: BrandsSelect<false> | BrandsSelect<true>;
     events: EventsSelect<false> | EventsSelect<true>;
     'shopping-categories': ShoppingCategoriesSelect<false> | ShoppingCategoriesSelect<true>;
+    'recycling-items': RecyclingItemsSelect<false> | RecyclingItemsSelect<true>;
+    'sustainability-standards': SustainabilityStandardsSelect<false> | SustainabilityStandardsSelect<true>;
+    countries: CountriesSelect<false> | CountriesSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
     exports: ExportsSelect<false> | ExportsSelect<true>;
@@ -180,11 +186,12 @@ export interface Brand {
   name: string;
   description: string;
   industry: string;
-  country: string;
+  country: number | Country;
   contactEmail: string;
   phoneNumber?: string | null;
   website: string;
   'products and services offered'?: string | null;
+  'sustainability standards'?: (number | SustainabilityStandard)[] | null;
   'serviceable locations'?:
     | (
         | 'bakultala'
@@ -7484,6 +7491,46 @@ export interface Brand {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "countries".
+ */
+export interface Country {
+  id: number;
+  name: string;
+  iso3?: string | null;
+  numeric_code?: string | null;
+  iso2?: string | null;
+  phonecode?: string | null;
+  capital?: string | null;
+  currency?: string | null;
+  currency_name?: string | null;
+  currency_symbol?: string | null;
+  tld?: string | null;
+  native?: string | null;
+  nationality?: string | null;
+  timezones?: string | null;
+  translations?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  emoji?: string | null;
+  emojiU?: string | null;
+  flag?: number | null;
+  wikiDataId?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "sustainability-standards".
+ */
+export interface SustainabilityStandard {
+  id: number;
+  name: string;
+  description?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "shopping-categories".
  */
 export interface ShoppingCategory {
@@ -7740,6 +7787,22 @@ export interface Form {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "recycling-items".
+ */
+export interface RecyclingItem {
+  id: number;
+  itemName: string;
+  canBeRecycled: boolean;
+  description?: string | null;
+  tip?: string | null;
+  isDryWaste?: boolean | null;
+  isWetWaste?: boolean | null;
+  isHazardousWaste?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "form-submissions".
  */
 export interface FormSubmission {
@@ -7910,6 +7973,18 @@ export interface PayloadLockedDocument {
         value: number | ShoppingCategory;
       } | null)
     | ({
+        relationTo: 'recycling-items';
+        value: number | RecyclingItem;
+      } | null)
+    | ({
+        relationTo: 'sustainability-standards';
+        value: number | SustainabilityStandard;
+      } | null)
+    | ({
+        relationTo: 'countries';
+        value: number | Country;
+      } | null)
+    | ({
         relationTo: 'forms';
         value: number | Form;
       } | null)
@@ -8015,6 +8090,7 @@ export interface BrandsSelect<T extends boolean = true> {
   phoneNumber?: T;
   website?: T;
   'products and services offered'?: T;
+  'sustainability standards'?: T;
   'serviceable locations'?: T;
   foundedYear?: T;
   createdBy?: T;
@@ -8080,6 +8156,59 @@ export interface EventsSelect<T extends boolean = true> {
  */
 export interface ShoppingCategoriesSelect<T extends boolean = true> {
   name?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "recycling-items_select".
+ */
+export interface RecyclingItemsSelect<T extends boolean = true> {
+  itemName?: T;
+  canBeRecycled?: T;
+  description?: T;
+  tip?: T;
+  isDryWaste?: T;
+  isWetWaste?: T;
+  isHazardousWaste?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "sustainability-standards_select".
+ */
+export interface SustainabilityStandardsSelect<T extends boolean = true> {
+  name?: T;
+  description?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "countries_select".
+ */
+export interface CountriesSelect<T extends boolean = true> {
+  name?: T;
+  iso3?: T;
+  numeric_code?: T;
+  iso2?: T;
+  phonecode?: T;
+  capital?: T;
+  currency?: T;
+  currency_name?: T;
+  currency_symbol?: T;
+  tld?: T;
+  native?: T;
+  nationality?: T;
+  timezones?: T;
+  translations?: T;
+  latitude?: T;
+  longitude?: T;
+  emoji?: T;
+  emojiU?: T;
+  flag?: T;
+  wikiDataId?: T;
   updatedAt?: T;
   createdAt?: T;
 }
