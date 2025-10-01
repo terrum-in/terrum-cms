@@ -1,3 +1,4 @@
+import { hasRole } from '@/utils/roleChecker'
 import { CollectionConfig } from 'payload'
 
 const Countries: CollectionConfig = {
@@ -111,7 +112,7 @@ const Countries: CollectionConfig = {
   ],
   timestamps: true,
   access: {
-    read: () => true, // anyone can read
+    read: ({ req }) => hasRole(req, ['admin', 'staff']),
     create: () => false, // block creation
     update: () => false, // block updates
     delete: () => false, // block deletes

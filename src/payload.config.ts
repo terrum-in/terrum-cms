@@ -18,7 +18,9 @@ import { resendAdapter } from '@payloadcms/email-resend'
 import { hasRole } from '@/utils/roleChecker'
 import RecyclingItems from '@/collections/RecyclingItems'
 import SustainabilityStandards from '@/collections/SustainabilityStandards'
-import Countries from './collections/Countries'
+import Countries from '@/collections/Countries'
+import Regions from '@/collections/Regions'
+import Subregions from '@/collections/Subregions'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -40,6 +42,8 @@ export default buildConfig({
     RecyclingItems,
     SustainabilityStandards,
     Countries,
+    Regions,
+    Subregions
   ],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
