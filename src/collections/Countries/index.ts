@@ -9,6 +9,7 @@ const Countries: CollectionConfig = {
   },
   defaultSort: 'name',
   admin: {
+    hidden: true,
     useAsTitle: 'name',
     defaultColumns: ['name', 'capital', 'currency_name', 'emoji'],
     pagination: {
@@ -29,7 +30,7 @@ const Countries: CollectionConfig = {
       maxLength: 3,
     },
     {
-      name: 'numeric_code',
+      name: 'numericCode',
       type: 'text',
       maxLength: 3,
     },
@@ -51,11 +52,11 @@ const Countries: CollectionConfig = {
       type: 'text',
     },
     {
-      name: 'currency_name',
+      name: 'currencyName',
       type: 'text',
     },
     {
-      name: 'currency_symbol',
+      name: 'currencySymbol',
       type: 'text',
     },
     {
@@ -65,6 +66,29 @@ const Countries: CollectionConfig = {
     {
       name: 'native',
       type: 'text',
+    },
+
+    {
+      name: 'regionName',
+      type: 'text',
+      required: false,
+    },
+    {
+      name: 'region',
+      type: 'relationship',
+      relationTo: 'regions',
+      required: false,
+    },
+    {
+      name: 'subregionName',
+      type: 'text',
+      required: false,
+    },
+    {
+      name: 'subregion',
+      type: 'relationship',
+      relationTo: 'subregions',
+      required: false,
     },
     {
       name: 'nationality',
@@ -100,22 +124,13 @@ const Countries: CollectionConfig = {
       name: 'emojiU',
       type: 'text',
     },
-    {
-      name: 'flag',
-      type: 'number',
-      defaultValue: 1,
-    },
-    {
-      name: 'wikiDataId',
-      type: 'text',
-    },
   ],
   timestamps: true,
   access: {
     read: ({ req }) => hasRole(req, ['admin', 'staff']),
-    create: () => false, // block creation
-    update: () => false, // block updates
-    delete: () => false, // block deletes
+    create: () => false,
+    update: () => false,
+    delete: () => false,
   },
 }
 

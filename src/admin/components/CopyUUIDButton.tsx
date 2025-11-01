@@ -7,8 +7,8 @@ const CopyUUIDButton: React.FC = () => {
     const { initialData } = useDocumentInfo();
 
     const copyToClipboard = () => {
-        if (initialData?.['event uuid']) {
-            const url = `https://terrum.in/events/${initialData?.['event uuid']}`;
+        if (initialData?.['eventUuid']) {
+            const url = `${process.env.NEXT_PUBLIC_TERRUM_BASE_URL}/events/${initialData?.['eventUuid']}`
             navigator.clipboard.writeText(url)
                 .then(() => {
                 })

@@ -1,36 +1,9 @@
 import { CollectionConfig, FieldHook } from 'payload'
 import { hasRole } from '@/utils/roleChecker'
 import { v4 as uuidv4 } from 'uuid'
-
-const generateUUID: FieldHook = ({ value }) => {
-  // If the document already has a UUID, keep it. Otherwise, generate a new one.
-  return value || uuidv4()
-}
-// Reusable URL validation function
-const validateUrl = (value?: string | string[] | null) => {
-  // Return true if value is empty or undefined
-  if (!value || value === '') {
-    return true
-  }
-
-  if (typeof value === 'string') {
-    const urlPattern = new RegExp(
-      '^(https?:\\/\\/)?' + // Protocol (optional)
-        '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.?)+[a-z]{2,}|' + // Domain name
-        '((\\d{1,3}\\.){3}\\d{1,3}))' + // OR IP (v4) address
-        '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' + // Port and path
-        '(\\?[;&a-z\\d%_.~+=-]*)?' + // Query string
-        '(\\#[-a-z\\d_]*)?$', // Fragment locator
-      'i',
-    )
-
-    if (urlPattern.test(value)) {
-      return true
-    }
-    return 'Invalid URL format.'
-  }
-  return 'Invalid URL format.'
-}
+import { APIError } from 'payload'
+import { generateUUID } from '@/hooks/generateUUID'
+import { validateUrl } from '@/validators/commons'
 
 const Event: CollectionConfig = {
   slug: 'events',
@@ -39,7 +12,7 @@ const Event: CollectionConfig = {
     plural: 'Events',
   },
   admin: {
-    defaultColumns: ['name', 'event uuid'],
+    defaultColumns: ['name', 'eventUuid', 'startDate'],
     useAsTitle: 'name',
   },
   fields: [
@@ -54,7 +27,7 @@ const Event: CollectionConfig = {
       },
     },
     {
-      name: 'event uuid',
+      name: 'eventUuid',
       type: 'text',
       unique: true,
       admin: {
@@ -76,6 +49,12 @@ const Event: CollectionConfig = {
       },
     },
     {
+      name: 'isHostedByTerrum',
+      type: 'checkbox',
+      label: 'Is hosted by Terrum?',
+      defaultValue: false,
+    },
+    {
       name: 'description',
       type: 'richText',
       required: true,
@@ -87,86 +66,30 @@ const Event: CollectionConfig = {
       required: true,
     },
     {
-      name: 'venue',
-      type: 'text',
-      maxLength: 255,
-      admin: {
-        placeholder: 'Enter the venue name (optional)',
-      },
+      name: 'region',
+      type: 'relationship',
+      relationTo: 'regions',
+      hasMany: false,
+      required: true,
     },
     {
-      name: 'city',
-      type: 'text',
-      maxLength: 255,
-      admin: {
-        placeholder: 'Enter the city (optional)',
-      },
-    },
-    {
-      name: 'locality',
-      type: 'text',
-      maxLength: 255,
-      admin: {
-        placeholder: 'Enter the locality (optional)',
-      },
-    },
-    {
-      name: 'google maps link',
-      type: 'text',
-      required: false,
-      admin: {
-        placeholder: 'Enter the Google Maps link for the event',
-      },
-      validate: validateUrl,
-    },
-    {
-      name: 'google form link',
-      type: 'text',
-      required: false,
-      admin: {
-        placeholder: 'Enter the Google form link for the event',
-      },
-      validate: validateUrl,
+      name: 'country',
+      type: 'relationship',
+      relationTo: 'countries',
+      hasMany: false,
+      required: true,
     },
     {
       name: 'price',
       type: 'number',
       admin: {
-        placeholder: 'Enter the price of the event',
+        placeholder: 'Enter the price of the event (Free by default)',
       },
       required: true,
       defaultValue: 0.0,
     },
     {
-      name: 'early bird price',
-      type: 'number',
-      admin: {
-        placeholder: 'Enter the early bird price of the event',
-      },
-      required: false,
-    },
-    {
-      name: 'early bird end date',
-      type: 'date',
-      required: false,
-      admin: {
-        placeholder: 'Select the early bird end date',
-        date: {
-          pickerAppearance: 'dayOnly',
-        },
-      },
-    },
-    {
-      name: 'payment link',
-      type: 'text',
-      required: false,
-      admin: {
-        placeholder: 'Enter the payment link for the event',
-      },
-      validate: validateUrl,
-    },
-    {
-      name: 'start date',
+      name: 'startDate',
       type: 'date',
       required: true,
       admin: {
@@ -177,7 +100,7 @@ const Event: CollectionConfig = {
       },
     },
     {
-      name: 'end date',
+      name: 'endDate',
       type: 'date',
       required: true,
       admin: {
@@ -188,7 +111,7 @@ const Event: CollectionConfig = {
       },
     },
     {
-      name: 'start time',
+      name: 'startTime',
       type: 'date',
       required: true,
       admin: {
@@ -199,7 +122,7 @@ const Event: CollectionConfig = {
       },
     },
     {
-      name: 'end time',
+      name: 'endTime',
       type: 'date',
       required: true,
       admin: {
@@ -210,7 +133,123 @@ const Event: CollectionConfig = {
       },
     },
     {
-      name: 'is online',
+      name: 'venue',
+      type: 'text',
+      maxLength: 255,
+      admin: {
+        placeholder: 'Enter the venue name (optional)',
+      },
+    },
+    {
+      name: 'state',
+      type: 'relationship',
+      relationTo: 'states',
+      hasMany: false,
+      required: false,
+    },
+    {
+      name: 'city',
+      type: 'relationship',
+      relationTo: 'cities',
+      hasMany: false,
+      required: false,
+    },
+    {
+      name: 'neighbourhood',
+      type: 'relationship',
+      relationTo: 'neighbourhoods',
+      hasMany: false,
+      required: false,
+    },
+    {
+      name: 'googleMapsLink',
+      label: 'Venue Google Maps Link',
+      type: 'text',
+      required: false,
+      admin: {
+        placeholder: 'Enter the Google Maps link for the event',
+      },
+      validate: validateUrl,
+    },
+    {
+      name: 'externalEventLink',
+      label: 'External Event/Registration Link',
+      type: 'text',
+      required: false,
+      admin: {
+        placeholder: 'Enter the external event link or registration link for the event',
+      },
+      validate: validateUrl,
+    },
+    {
+      name: 'earlyBirdPrice',
+      type: 'number',
+      required: false,
+      admin: {
+        placeholder: 'Enter the early bird price of the event',
+      },
+      validate: (
+        value: number | null | undefined,
+        {
+          siblingData,
+          data,
+          originalDoc,
+        }: {
+          siblingData: any
+          data: any
+          originalDoc?: any
+        },
+      ): true | string => {
+        const price =
+          typeof siblingData?.price === 'number'
+            ? siblingData.price
+            : typeof data?.price === 'number'
+              ? data.price
+              : typeof originalDoc?.price === 'number'
+                ? originalDoc.price
+                : undefined
+
+        const ebDate =
+          siblingData?.earlyBirdEndDate ?? data?.earlyBirdEndDate ?? originalDoc?.earlyBirdEndDate
+
+        // If date is set, price must be set
+        if ((ebDate ?? null) && (value === null || value === undefined)) {
+          return 'Early bird price is required when an early bird end date is set.'
+        }
+
+        if (value !== null && value !== undefined) {
+          if (Number.isNaN(value)) return 'Early bird price must be a number.'
+          if (value <= 0) return 'Early bird price must be greater than 0.'
+          if (typeof price === 'number' && value >= price) {
+            return 'Early bird price must be less than the regular price.'
+          }
+        }
+
+        return true
+      },
+    },
+    {
+      name: 'earlyBirdEndDate',
+      type: 'date',
+      required: false,
+      admin: {
+        placeholder: 'Select the early bird end date',
+        date: {
+          pickerAppearance: 'dayOnly',
+        },
+      },
+    },
+    {
+      name: 'paymentLink',
+      type: 'text',
+      required: false,
+      admin: {
+        placeholder: 'Enter the payment link for the event if using external payment gateway',
+      },
+      validate: validateUrl,
+    },
+    {
+      name: 'isOnline',
       type: 'checkbox',
       defaultValue: false,
       admin: {
@@ -218,7 +257,29 @@ const Event: CollectionConfig = {
       },
     },
     {
-      name: 'is online and offline',
+      name: 'meetingLink',
+      type: 'text',
+      label: 'Online Meeting (Google/Zoom) Link',
+      required: false,
+      admin: {
+        placeholder: 'Enter the meeting link if the event is online.',
+        condition: (data) => Boolean(data?.isOnline || data?.isOnlineAndOffline),
+      },
+      validate: (
+        value: string | null | undefined,
+        { siblingData }: { siblingData: Record<string, unknown> },
+      ): true | string => {
+        const needsLink = Boolean(siblingData?.isOnline || siblingData?.isOnlineAndOffline)
+
+        if (needsLink && (!value || value.trim() === '')) {
+          return 'Meeting link is required when the event is online or online+offline.'
+        }
+
+        return validateUrl(value) // now perfectly typed
+      },
+    },
+    {
+      name: 'isOnlineAndOffline',
       type: 'checkbox',
       defaultValue: false,
       admin: {
@@ -233,7 +294,7 @@ const Event: CollectionConfig = {
     {
       name: 'form',
       type: 'relationship',
-      relationTo: 'forms', // Reference to the forms collection
+      relationTo: 'forms',
       required: false,
     },
     {
@@ -283,8 +344,73 @@ const Event: CollectionConfig = {
       },
     },
   ],
+  hooks: {
+    beforeValidate: [
+      ({ data, originalDoc, operation }) => {
+        if (!data) return data
+
+        // Keep your existing meetingLink cleanup
+        const isOnline = data.isOnline ?? (operation === 'update' ? originalDoc?.isOnline : false)
+        const isHybrid =
+          data.isOnlineAndOffline ??
+          (operation === 'update' ? originalDoc?.isOnlineAndOffline : false)
+        if (!isOnline && !isHybrid) data.meetingLink = null
+
+        // --- Early Bird Validation ---
+        const price =
+          typeof data.price === 'number'
+            ? data.price
+            : operation === 'update'
+              ? originalDoc?.price
+              : 0
+
+        const earlyBirdPrice =
+          typeof data.earlyBirdPrice === 'number'
+            ? data.earlyBirdPrice
+            : operation === 'update'
+              ? originalDoc?.earlyBirdPrice
+              : undefined
+
+        const earlyBirdEndDate =
+          data.earlyBirdEndDate ??
+          (operation === 'update' ? originalDoc?.earlyBirdEndDate : undefined)
+
+        const hasEBPrice = typeof earlyBirdPrice === 'number' && !Number.isNaN(earlyBirdPrice)
+        const hasEBDate = Boolean(earlyBirdEndDate)
+
+        // Mutual requirement
+        if (hasEBPrice && !hasEBDate) {
+          throw new APIError(
+            'Early bird end date is required when an early bird price is set.',
+            400,
+          )
+        }
+        if (hasEBDate && !hasEBPrice) {
+          throw new APIError(
+            'Early bird price is required when an early bird end date is set.',
+            400,
+          )
+        }
+
+        // Price relation
+        if (hasEBPrice) {
+          if (!price || price <= 0) {
+            throw new APIError(
+              'Regular price must be a positive number when early bird price is provided.',
+              400,
+            )
+          }
+          if (earlyBirdPrice >= price) {
+            throw new APIError('Early bird price must be less than the regular price.', 400)
+          }
+        }
+
+        return data
+      },
+    ],
+  },
   access: {
-    read: ({ req }) => hasRole(req, ['admin', 'staff']),
+    read: () => true,
     create: ({ req }) => hasRole(req, ['admin', 'staff']),
     update: ({ req }) => hasRole(req, ['admin', 'staff']),
     delete: ({ req }) => hasRole(req, ['admin', 'staff']),
