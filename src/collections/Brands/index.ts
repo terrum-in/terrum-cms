@@ -1,6 +1,5 @@
 import { CollectionConfig } from 'payload'
 import { hasRole } from '@/utils/roleChecker'
-import { citiesAndStates } from '@/utils/cities-and-states'
 
 const Brand: CollectionConfig = {
   slug: 'brands',
@@ -83,29 +82,29 @@ const Brand: CollectionConfig = {
       },
     },
     {
-      name: 'products and services offered',
+      name: 'productsAndServicesOffered',
+      label: 'Products and Services Offered',
       type: 'textarea',
       required: false,
     },
     {
-      name: 'sustainability standards',
+      name: 'sustainabilityStandards',
+      label: 'Sustainability Standards',
       type: 'relationship',
       relationTo: 'sustainability-standards',
       hasMany: true,
       required: false,
     },
     {
-      name: 'serviceable locations', // required
-      type: 'select', // required
+      name: 'serviceableLocations',
+      label: 'Serviceable Locations',
+      type: 'relationship',
+      relationTo: ['regions', 'countries', 'states', 'cities'],
       hasMany: true,
-      admin: {
-        isClearable: true,
-        isSortable: true, // use mouse to drag and drop different values, and sort them according to your choice
-      },
-      options: citiesAndStates,
     },
     {
       name: 'foundedYear',
+      label: 'Founded Year',
       type: 'number',
       required: false,
       min: 1800,
@@ -139,8 +138,8 @@ const Brand: CollectionConfig = {
       relationTo: 'shopping-categories',
     },
     {
-      name: 'social media links', // required
-      type: 'array', // required
+      name: 'socialMediaLinks',
+      type: 'array',
       label: 'Social Media Links',
       minRows: 1,
       maxRows: 10,

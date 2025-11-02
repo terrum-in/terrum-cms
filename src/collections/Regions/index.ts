@@ -3,11 +3,15 @@ import { CollectionConfig } from 'payload'
 const Regions: CollectionConfig = {
   slug: 'regions',
   labels: { singular: 'Region', plural: 'Regions' },
+  admin: {
+    hidden: true,
+    useAsTitle: 'name',
+  },
   access: {
     read: () => true,
-    create: ({ req }) => req.user?.role === 'admin',
-    update: ({ req }) => req.user?.role === 'admin',
-    delete: ({ req }) => req.user?.role === 'admin',
+    create: () => false,
+    update: () => false,
+    delete: () => false,
   },
   fields: [
     {
@@ -19,16 +23,6 @@ const Regions: CollectionConfig = {
     {
       name: 'translations',
       type: 'json',
-    },
-    {
-      name: 'flag',
-      type: 'number',
-      defaultValue: 1,
-      required: true,
-    },
-    {
-      name: 'wikiDataId',
-      type: 'text',
     },
   ],
 }

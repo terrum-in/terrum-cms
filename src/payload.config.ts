@@ -21,12 +21,15 @@ import SustainabilityStandards from '@/collections/SustainabilityStandards'
 import Countries from '@/collections/Countries'
 import Regions from '@/collections/Regions'
 import Subregions from '@/collections/Subregions'
+import { States } from '@/collections/States'
+import { Cities } from '@/collections/Cities'
+import { Neighbourhoods } from '@/collections/Neighbourhoods'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
 export default buildConfig({
-  cors: ['http://localhost:3001'],
+  cors: [],
   admin: {
     user: Users.slug,
     importMap: {
@@ -43,7 +46,10 @@ export default buildConfig({
     SustainabilityStandards,
     Countries,
     Regions,
-    Subregions
+    Subregions,
+    States,
+    Cities,
+    Neighbourhoods
   ],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
@@ -88,7 +94,6 @@ export default buildConfig({
       },
       formOverrides: {
         access: {
-          read: ({ req }) => hasRole(req, ['admin', 'staff']),
           create: ({ req }) => hasRole(req, ['admin', 'staff']),
           update: ({ req }) => hasRole(req, ['admin', 'staff']),
           delete: ({ req }) => hasRole(req, ['admin', 'staff']),
@@ -97,9 +102,9 @@ export default buildConfig({
       formSubmissionOverrides: {
         access: {
           read: ({ req }) => hasRole(req, ['admin', 'staff']),
-          create: ({ req }) => hasRole(req, ['admin', 'staff']),
-          update: ({ req }) => hasRole(req, ['admin', 'staff']),
-          delete: ({ req }) => hasRole(req, ['admin', 'staff']),
+          create: () => true, // allow public submissions
+          update: () => false, // nobody can update submissions
+          delete: () => false, // nobody can delete submissions
         },
       },
     }),

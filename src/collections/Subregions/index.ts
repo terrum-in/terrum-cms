@@ -3,11 +3,14 @@ import { CollectionConfig } from 'payload'
 const Subregions: CollectionConfig = {
   slug: 'subregions',
   labels: { singular: 'Subregion', plural: 'Subregions' },
+  admin: {
+    hidden: true,
+  },
   access: {
     read: () => true,
-    create: ({ req }) => req.user?.role === 'admin',
-    update: ({ req }) => req.user?.role === 'admin',
-    delete: ({ req }) => req.user?.role === 'admin',
+    create: () => false,
+    update: () => false,
+    delete: () => false,
   },
   fields: [
     {
@@ -24,11 +27,7 @@ const Subregions: CollectionConfig = {
       name: 'region',
       type: 'relationship',
       relationTo: 'regions',
-      required: true, 
-    },
-    {
-      name: 'wikiDataId',
-      type: 'text',
+      required: true,
     },
   ],
 }
