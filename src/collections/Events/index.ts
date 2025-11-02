@@ -275,7 +275,7 @@ const Event: CollectionConfig = {
           return 'Meeting link is required when the event is online or online+offline.'
         }
 
-        return validateUrl(value) // now perfectly typed
+        return validateUrl(value)
       },
     },
     {
